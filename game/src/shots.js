@@ -61,8 +61,9 @@ function stagePlay(game, hand) {
   game.bossPending = null;
   game.boss = new Boss('moonEater', game.diff);
   game.boss.hp = game.boss.maxHp * 0.52;
-  game.boss.x = 860;
+  game.boss.x = 960;
   game.boss.y = 270;
+  game.boss.t = 2.4;
   game.player.x = 560;
   game.player.y = 600;
   game.player.hp = 96;
@@ -78,6 +79,9 @@ function stagePlay(game, hand) {
   ];
   for (const [k, x, y] of spots) game.spawnFoe(k, x, y);
   simulate(game, hand, 0.9);
+  game.boss.x = 790;
+  game.boss.y = 330;
+  game.effects.texts = game.effects.texts.filter((t) => t.text !== 'ON BEAT');
   game.clock.time = 0.01;
   hand.aimAtNearest();
   hand.mouse.leftPressed = true;

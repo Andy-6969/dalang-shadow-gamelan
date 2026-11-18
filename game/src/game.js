@@ -98,8 +98,8 @@ export class Game {
     if (onBeat) {
       this.stats.onBeat += 1;
       this.streak += 1;
+      if (p.beatGlow < 0.6) this.effects.floatText(p.x, p.y - 150, 'ON BEAT', '#ffe08a', 20);
       p.beatGlow = 1;
-      this.effects.floatText(p.x, p.y - 128, 'ON BEAT', '#ffe08a', 20);
     } else {
       this.streak = Math.max(0, this.streak - 2);
     }

@@ -95,7 +95,7 @@ function render() {
     drawWorld();
     if (game.state === 'play') {
       drawHud(ctx, game);
-      game.effects.drawCallouts(ctx, 640, 205);
+      game.effects.drawCallouts(ctx, 430, 215);
       if (game.paused) drawPause(ctx);
     } else if (game.state === 'draft') {
       drawDraft(ctx, game);

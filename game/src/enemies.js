@@ -6,11 +6,11 @@ import { dist, angleTo, clamp } from './rng.js';
 import { drawWithShadow, drawButo, drawLelawa, drawBanaspati, drawWewe, drawGendruwo } from './puppets.js';
 
 export const FOE_KINDS = {
-  buto: { name: 'Buto Cilik', hp: 22, speed: 74, radius: 26, scale: 0.85, damage: 10, score: 100, color: '#3f8a3a', targetsLamp: true },
-  lelawa: { name: 'Lelawa', hp: 10, speed: 160, radius: 22, scale: 1.05, damage: 8, score: 80, color: '#4a2a5e', targetsLamp: false },
-  banaspati: { name: 'Banaspati', hp: 18, speed: 90, radius: 24, scale: 1.2, damage: 12, score: 150, color: '#ff8a1e', targetsLamp: false },
-  wewe: { name: 'Wewe Shade', hp: 30, speed: 70, radius: 24, scale: 0.95, damage: 14, score: 180, color: '#9fd3c9', targetsLamp: true },
-  gendruwo: { name: 'Gendruwo', hp: 95, speed: 52, radius: 40, scale: 1.3, damage: 20, score: 400, color: '#5a3a2a', targetsLamp: true },
+  buto: { name: 'Buto Cilik', hp: 22, speed: 74, radius: 26, scale: 0.85, damage: 10, score: 100, color: '#3f8a3a', targetsLamp: true, behaviour: 'marches on the lamp, drinks its oil' },
+  lelawa: { name: 'Lelawa', hp: 10, speed: 160, radius: 22, scale: 1.05, damage: 8, score: 80, color: '#4a2a5e', targetsLamp: false, behaviour: 'fast bat, zig-zags at the hero' },
+  banaspati: { name: 'Banaspati', hp: 18, speed: 90, radius: 24, scale: 1.2, damage: 12, score: 150, color: '#ff8a1e', targetsLamp: false, behaviour: 'fire skull, spits bolts on the beat' },
+  wewe: { name: 'Wewe Shade', hp: 30, speed: 70, radius: 24, scale: 0.95, damage: 14, score: 180, color: '#9fd3c9', targetsLamp: true, behaviour: 'ghost, blinks toward the lamp' },
+  gendruwo: { name: 'Gendruwo', hp: 95, speed: 52, radius: 40, scale: 1.3, damage: 20, score: 400, color: '#5a3a2a', targetsLamp: true, behaviour: 'armoured brute, hard to push' },
 };
 
 export class Foe {

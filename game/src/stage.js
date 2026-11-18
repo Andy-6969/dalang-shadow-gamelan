@@ -72,8 +72,22 @@ export function drawKelir(ctx, t, darkness = 0) {
   ctx.fillStyle = glow;
   ctx.fillRect(0, 0, VIEW_W, VIEW_H);
   if (darkness > 0) {
-    ctx.fillStyle = `rgba(50, 14, 70, ${darkness * 0.32})`;
+    // eclipse: night creeps in from the edges while the lamp holds a warm island
+    const eclipse = ctx.createRadialGradient(LAMP_X, LAMP_Y, 120, LAMP_X, LAMP_Y, 820);
+    eclipse.addColorStop(0, 'rgba(40, 10, 60, 0)');
+    eclipse.addColorStop(0.45, `rgba(48, 16, 82, ${darkness * 0.45})`);
+    eclipse.addColorStop(1, `rgba(16, 6, 34, ${Math.min(0.92, darkness * 1.35)})`);
+    ctx.fillStyle = eclipse;
     ctx.fillRect(0, 0, VIEW_W, VIEW_H);
+    // a few stars pricking through the darkened screen
+    ctx.fillStyle = `rgba(255, 240, 200, ${darkness * 0.8})`;
+    for (let i = 0; i < 40; i++) {
+      const sx = (i * 397) % VIEW_W;
+      const sy = 20 + ((i * 211) % 300);
+      if (Math.hypot(sx - LAMP_X, sy - LAMP_Y) < 380) continue;
+      const tw = 1 + ((i + Math.floor(t * 2)) % 3 === 0 ? 1 : 0);
+      ctx.fillRect(sx, sy, tw, tw);
+    }
   }
 }
 

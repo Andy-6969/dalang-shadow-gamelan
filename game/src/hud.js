@@ -66,13 +66,36 @@ function tag(ctx, label, x, y, color) {
   return w;
 }
 
+// The seven nights as a row of dots: cleared, current, and the two boss nights ringed red.
+function drawLakonDots(ctx, g, x0, y) {
+  NIGHTS.forEach((n, i) => {
+    const x = x0 + i * 22;
+    if (i < NIGHTS.length - 1) {
+      ctx.strokeStyle = 'rgba(242, 180, 55, 0.5)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(x + 7, y);
+      ctx.lineTo(x + 15, y);
+      ctx.stroke();
+    }
+    ctx.fillStyle = i < g.nightIndex ? PALETTE.gold : i === g.nightIndex ? PALETTE.cream : 'rgba(255,255,255,0.15)';
+    ctx.strokeStyle = n.boss ? PALETTE.bad : PALETTE.goldDeep;
+    ctx.lineWidth = n.boss ? 2.5 : 1.5;
+    ctx.beginPath();
+    ctx.arc(x, y, i === g.nightIndex ? 8 : 6, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.stroke();
+  });
+}
+
 function drawNightPanel(ctx, g) {
-  panel(ctx, 14, 22, 330, 132);
+  panel(ctx, 14, 22, 350, 132);
   text(ctx, `NIGHT ${g.nightIndex + 1} / ${NIGHTS.length}`, 28, 52, 26, PALETTE.gold, 900);
+  drawLakonDots(ctx, g, 196, 44);
   text(ctx, g.night.title, 28, 74, 15, PALETTE.cream, 600);
   const remaining = g.queue.length + g.foes.length + (g.boss || g.bossPending ? 1 : 0);
   const done = 1 - remaining / Math.max(1, g.nightTotal + 2);
-  bar(ctx, 28, 84, 300, 9, done, PALETTE.teal);
+  bar(ctx, 28, 84, 320, 9, done, PALETTE.teal);
   let w = tag(ctx, 'WIN', 28, 102, PALETTE.good);
   text(ctx, 'survive 7 nights, drive off the Moon-Eater', 28 + w + 6, 117, 13, PALETTE.cream, 600);
   w = tag(ctx, 'LOSE', 28, 126, PALETTE.bad);
@@ -84,17 +107,22 @@ function drawIncoming(ctx, g) {
   for (const k of g.queue) counts[k] = (counts[k] || 0) + 1;
   for (const f of g.foes) counts[f.kind] = (counts[f.kind] || 0) + 1;
   const kinds = Object.keys(counts);
-  const h = 40 + kinds.length * 26;
-  panel(ctx, 14, 164, 210, h);
+  const h = 42 + kinds.length * 36;
+  panel(ctx, 14, 164, 240, h);
   text(ctx, 'INCOMING', 28, 188, 15, PALETTE.gold, 900);
+  text(ctx, `${g.queue.length} still to come`, 240, 188, 12, PALETTE.cream, 600, 'right');
   kinds.forEach((k, i) => {
-    const y = 212 + i * 26;
+    const y = 212 + i * 36;
     ctx.fillStyle = FOE_KINDS[k].color;
+    ctx.strokeStyle = PALETTE.gold;
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
-    ctx.arc(36, y - 5, 7, 0, Math.PI * 2);
+    ctx.arc(36, y - 2, 8, 0, Math.PI * 2);
     ctx.fill();
-    text(ctx, FOE_KINDS[k].name, 52, y, 14, PALETTE.cream, 700);
-    text(ctx, `x${counts[k]}`, 210, y, 16, PALETTE.gold, 900, 'right');
+    ctx.stroke();
+    text(ctx, FOE_KINDS[k].name, 52, y, 14, PALETTE.cream, 800);
+    text(ctx, FOE_KINDS[k].behaviour, 52, y + 15, 11, 'rgba(255,244,220,0.7)', 600);
+    text(ctx, `x${counts[k]}`, 240, y + 4, 17, PALETTE.gold, 900, 'right');
   });
 }
 
@@ -135,19 +163,22 @@ function drawScorePanel(ctx, g) {
 
 function drawTembangPanel(ctx, g) {
   const list = g.ownedTembang();
-  const x = 1056; const w = 210;
-  const h = 44 + Math.max(1, list.length) * 24;
+  const x = 1036; const w = 230;
+  const rows = list.slice(0, 9);
+  const h = 44 + Math.max(1, rows.length) * 33;
   panel(ctx, x, 144, w, h);
-  text(ctx, `TEMBANG ${list.length}`, x + 14, 168, 15, PALETTE.gold, 900);
+  text(ctx, `TEMBANG ${list.length}/12`, x + 14, 168, 15, PALETTE.gold, 900);
+  text(ctx, 'songs learned', x + w - 14, 168, 11, PALETTE.cream, 600, 'right');
   if (!list.length) text(ctx, 'learn songs between nights', x + 14, 192, 12, PALETTE.cream, 600);
-  list.slice(0, 10).forEach((t, i) => {
-    const y = 192 + i * 24;
+  rows.forEach((t, i) => {
+    const y = 192 + i * 33;
     ctx.fillStyle = t.color;
     ctx.beginPath();
-    ctx.roundRect(x + 14, y - 14, 18, 18, 3);
+    ctx.roundRect(x + 14, y - 14, 20, 20, 4);
     ctx.fill();
-    text(ctx, t.icon, x + 23, y, 11, PALETTE.ink, 900, 'center');
-    text(ctx, t.name, x + 40, y, 13, PALETTE.cream, 700);
+    text(ctx, t.icon, x + 24, y + 1, 11, PALETTE.ink, 900, 'center');
+    text(ctx, t.name, x + 42, y, 13, PALETTE.cream, 800);
+    text(ctx, t.text, x + 42, y + 14, 10, 'rgba(255,244,220,0.7)', 600);
   });
 }
 
