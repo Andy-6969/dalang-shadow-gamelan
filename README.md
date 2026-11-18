@@ -16,7 +16,8 @@ keris slash, gong blast and dash landed **on the beat** hits twice as hard and c
   Space dash · P pause · M sound · R restart.
 - **Depth:** 5 foe kinds, 2 bosses with 3 phases each (the Iron Ogre's plates only crack on
   the beat; the Moon-Eater dims the lamp), 12 tembang (songs) to learn between nights, two
-  roads after each night (the wild Gara-gara or the calm Limbukan), 3 difficulties, 8 feats,
+  roads after each night (the wild Gara-gara or the calm Limbukan), 3 night goals per night
+  paying a dawn bonus, 3 difficulties, 8 feats,
   grades and a saved best score.
 - **Everything is drawn and played by code:** the puppets, the kayon tree and the screen are
   canvas paths; the saron, bonang, kempul, gong and kendang are synthesised with Web Audio.
@@ -33,7 +34,7 @@ mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts   # hand-in: game/, screensh
 
 Source map: `game/src/game.js` (rules and state machine), `rhythm.js` (beat clock),
 `audio.js` (gamelan synth), `puppets.js` and `stage.js` (art), `player.js`, `enemies.js`,
-`bosses.js`, `upgrades.js`, `hud.js`, `screens.js`, `effects.js`, `shots.js` (staged
+`bosses.js`, `goals.js`, `upgrades.js`, `hud.js`, `screens.js`, `effects.js`, `shots.js` (staged
 screenshot scenes, `?shot=title|play|draft|end`).
 
 ---

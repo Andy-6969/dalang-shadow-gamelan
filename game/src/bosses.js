@@ -9,6 +9,7 @@ export const BOSS_KINDS = {
   ironOgre: {
     name: 'RAKSASA WESI',
     title: 'the Iron Ogre',
+    short: 'the Ogre',
     hp: 640,
     radius: 60,
     scale: 2.1,
@@ -19,6 +20,7 @@ export const BOSS_KINDS = {
   moonEater: {
     name: 'SANG PEMANGSA BULAN',
     title: 'the Moon-Eater',
+    short: 'the Eater',
     hp: 1100,
     radius: 70,
     scale: 1.7,

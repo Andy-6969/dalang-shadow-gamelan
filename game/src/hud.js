@@ -124,6 +124,27 @@ function drawIncoming(ctx, g) {
     text(ctx, FOE_KINDS[k].behaviour, 52, y + 15, 11, 'rgba(255,244,220,0.7)', 600);
     text(ctx, `x${counts[k]}`, 240, y + 4, 17, PALETTE.gold, 900, 'right');
   });
+  return 164 + h;
+}
+
+// Tonight's three side goals as a checklist with progress counts.
+function drawGoals(ctx, g, y0) {
+  if (!g.goals || !g.goals.length) return;
+  const done = g.goals.filter((goal) => goal.done || (goal.holds && goal.value(g) >= goal.target)).length;
+  panel(ctx, 14, y0, 262, 34 + g.goals.length * 26);
+  text(ctx, 'NIGHT GOALS', 28, y0 + 22, 15, PALETTE.gold, 900);
+  text(ctx, `${done}/${g.goals.length}`, 262, y0 + 22, 15, PALETTE.good, 900, 'right');
+  g.goals.forEach((goal, i) => {
+    const y = y0 + 46 + i * 26;
+    const ok = goal.done || (goal.holds && goal.value(g) >= goal.target);
+    ctx.fillStyle = ok ? PALETTE.good : 'rgba(255,255,255,0.12)';
+    ctx.beginPath();
+    ctx.roundRect(28, y - 13, 16, 16, 3);
+    ctx.fill();
+    if (ok) text(ctx, '✓', 36, y + 1, 13, PALETTE.ink, 900, 'center');
+    text(ctx, goal.text, 52, y, 12, ok ? PALETTE.cream : 'rgba(255,244,220,0.8)', 700);
+    if (!goal.holds) text(ctx, `${Math.min(goal.target, goal.value(g))}/${goal.target}`, 262, y, 12, PALETTE.gold, 800, 'right');
+  });
 }
 
 function drawBossBar(ctx, g) {
@@ -251,7 +272,8 @@ function drawControls(ctx) {
 
 export function drawHud(ctx, g) {
   drawNightPanel(ctx, g);
-  drawIncoming(ctx, g);
+  const incomingBottom = drawIncoming(ctx, g);
+  drawGoals(ctx, g, incomingBottom + 10);
   drawBossBar(ctx, g);
   drawScorePanel(ctx, g);
   drawTembangPanel(ctx, g);

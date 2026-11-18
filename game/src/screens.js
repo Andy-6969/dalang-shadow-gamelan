@@ -92,7 +92,7 @@ export function drawTitle(ctx, g) {
   });
 
   text(ctx, 'THE LAKON', 60, 660, 14, PALETTE.gold, 800);
-  text(ctx, '7 nights · 2 bosses · 5 foes · 12 tembang · 2 roads · 3 difficulties', 60, 682, 14, PALETTE.cream, 600);
+  text(ctx, '7 nights · 21 night goals · 2 bosses · 5 foes · 12 tembang · 2 roads · 3 difficulties', 60, 682, 13, PALETTE.cream, 600);
   text(ctx, `BEST ${g.save.best.toLocaleString('en-US')}`, 60, 716, 18, PALETTE.gold, 900);
   if (g.save.runs.length) {
     const r = g.save.runs[0];
@@ -148,7 +148,8 @@ export function drawDraft(ctx, g) {
   ctx.fillStyle = 'rgba(20, 10, 6, 0.82)';
   ctx.fillRect(0, 0, VIEW_W, VIEW_H);
   text(ctx, `NIGHT ${g.nightIndex + 1} / ${NIGHTS.length} CLEARED`, VIEW_W / 2, 74, 50, PALETTE.gold, 900, 'center');
-  text(ctx, `lamp bonus +${d.bonus.toLocaleString('en-US')} · score ${g.score.toLocaleString('en-US')} · ${g.stats.kills} foes cut down`, VIEW_W / 2, 106, 17, PALETTE.cream, 600, 'center');
+  const goalsDone = g.goals.filter((goal) => goal.done).length;
+  text(ctx, `dawn bonus +${d.bonus.toLocaleString('en-US')} · night goals ${goalsDone}/${g.goals.length} · score ${g.score.toLocaleString('en-US')} · ${g.stats.kills} foes cut down`, VIEW_W / 2, 106, 17, PALETTE.cream, 600, 'center');
 
   const learning = !d.picked;
   text(ctx, `1 · LEARN A TEMBANG ${d.extra ? '(Gara-gara gift: pick twice)' : ''}   keys 1 2 3`, 60, 156, 20, learning ? PALETTE.gold : 'rgba(255,244,220,0.5)', 900);
@@ -190,14 +191,29 @@ export function drawDraft(ctx, g) {
     text(ctx, line, rx + 14, ly, 13, PALETTE.cream, 600);
   });
 
-  panel(ctx, 80, 440, 1120, 150, 0.9);
+  panel(ctx, 80, 420, 1120, 170, 0.9);
   text(ctx, 'THE LAKON', 104, 470, 16, PALETTE.gold, 900);
   nightPath(ctx, g, 520);
   const nextNight = NIGHTS[g.nightIndex + 1];
-  text(ctx, `NEXT · NIGHT ${g.nightIndex + 2}: ${nextNight.title} · gamelan ${nextNight.bpm} BPM`, VIEW_W / 2, 630, 18, PALETTE.cream, 700, 'center');
+  // tonight's goals, settled at dawn
+  panel(ctx, 80, 610, 520, 150, 0.9);
+  text(ctx, `NIGHT GOALS ${goalsDone}/${g.goals.length}`, 104, 640, 16, PALETTE.gold, 900);
+  g.goals.forEach((goal, i) => {
+    const y = 674 + i * 28;
+    ctx.fillStyle = goal.done ? PALETTE.good : 'rgba(255,255,255,0.12)';
+    ctx.beginPath();
+    ctx.roundRect(104, y - 15, 18, 18, 4);
+    ctx.fill();
+    if (goal.done) text(ctx, '✓', 113, y, 14, PALETTE.ink, 900, 'center');
+    text(ctx, goal.text, 132, y, 15, goal.done ? PALETTE.cream : 'rgba(255,244,220,0.5)', 700);
+    text(ctx, goal.done ? `+${Math.round(goal.bonus * g.diff.scoreMul * (g.nightIndex + 1) * 0.5).toLocaleString('en-US')}` : 'missed', 580, y, 14, goal.done ? PALETTE.good : PALETTE.bad, 800, 'right');
+  });
+  panel(ctx, 620, 610, 580, 150, 0.9);
+  text(ctx, `NEXT · NIGHT ${g.nightIndex + 2}`, 644, 640, 16, PALETTE.gold, 900);
+  text(ctx, `${nextNight.title} · gamelan ${nextNight.bpm} BPM`, 644, 668, 16, PALETTE.cream, 700);
   const owned = g.ownedTembang();
-  text(ctx, `TEMBANG LEARNED ${owned.length}: ${owned.map((t) => t.name).join(' · ') || 'none yet'}`, VIEW_W / 2, 664, 13, PALETTE.gold, 600, 'center');
-  text(ctx, `HERO ${Math.ceil(g.player.hp)}/${g.player.maxHp}   ·   LAMP OIL ${Math.ceil(g.lamp.oil)}   ·   BEST IRAMA ${IRAMA_NAMES[g.stats.bestIrama]}`, VIEW_W / 2, 700, 15, PALETTE.cream, 700, 'center');
+  text(ctx, `TEMBANG ${owned.length}: ${owned.map((t) => t.name).join(' · ') || 'none yet'}`, 644, 698, 13, PALETTE.gold, 600);
+  text(ctx, `HERO ${Math.ceil(g.player.hp)}/${g.player.maxHp}  ·  LAMP OIL ${Math.ceil(g.lamp.oil)}  ·  BEST IRAMA ${IRAMA_NAMES[g.stats.bestIrama]}`, 644, 732, 15, PALETTE.cream, 700);
 }
 
 function fmtTime(s) {
@@ -247,7 +263,7 @@ export function drawResults(ctx, g) {
   const rate = s.actions ? Math.round((s.onBeat / s.actions) * 100) : 0;
   const cells = [
     ['FOES CUT', `${s.kills}`], ['ON BEAT', `${rate}%`], ['BEST IRAMA', IRAMA_NAMES[s.bestIrama]],
-    ['BEST CHAIN', `x${s.bestChain}`], ['TIME', fmtTime(s.time)], ['TEMBANG', `${g.owned.length}`],
+    ['BEST CHAIN', `x${s.bestChain}`], ['TIME', fmtTime(s.time)], ['NIGHT GOALS', `${s.goalsDone}/21`],
   ];
   cells.forEach(([k, v], i) => {
     const x = 360 + (i % 3) * 170; const y = 262 + Math.floor(i / 3) * 84;

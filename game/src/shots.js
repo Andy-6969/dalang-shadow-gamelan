@@ -56,6 +56,8 @@ function stagePlay(game, hand) {
   game.stats.actions = 640;
   game.stats.onBeat = 431;
   game.startNight(6);
+  game.nightKills = game.goals[0].target;
+  game.nightBeats = game.goals[1].target - 4;
   game.effects.callouts = [];
   game.queue = game.queue.slice(4);
   game.bossPending = null;
@@ -106,6 +108,8 @@ function stageDraft(game, hand) {
   game.stats.bestIrama = 3;
   game.lamp.oil = 84;
   game.player.hp = 101;
+  game.nightKills = 40;
+  game.nightBeats = 30;
   simulate(game, hand, 0.2);
   game.draft.extra = 0;
   game.pickTembang(1);
@@ -121,7 +125,7 @@ function stageEnd(game) {
   game.bossPending = null;
   game.bossDefeated = ['ironOgre', 'moonEater'];
   game.score = 251380;
-  Object.assign(game.stats, { kills: 402, actions: 905, onBeat: 642, bestIrama: 4, bestChain: 11, time: 1067, cleanNights: 2, lowestOil: 58, tookGaragara: true });
+  Object.assign(game.stats, { kills: 402, actions: 905, onBeat: 642, bestIrama: 4, bestChain: 11, time: 1067, cleanNights: 2, lowestOil: 58, tookGaragara: true, goalsDone: 18 });
   game.save.runs = [{ score: 203110, grade: 'A', won: true, night: 7, diff: 'GAGAH' }, { score: 96400, grade: 'B', won: false, night: 5, diff: 'GAGAH' }, { score: 31250, grade: 'C', won: false, night: 3, diff: 'ALUS' }];
   game.save.best = 203110;
   game.endRun(true, 'The Moon-Eater is driven off and dawn comes');

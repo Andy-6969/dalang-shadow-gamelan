@@ -10,6 +10,7 @@ import { Foe, Bolt } from './enemies.js';
 import { Boss, BOSS_KINDS } from './bosses.js';
 import { baseMods, draftChoices, tembangById } from './upgrades.js';
 import { loadSave, recordRun } from './save.js';
+import { makeNightGoals, updateNightGoals, settleNightGoals } from './goals.js';
 
 export class Game {
   constructor(audio, seed = 7) {
@@ -48,7 +49,8 @@ export class Game {
     this.chainTimer = 0;
     this.road = null;
     this.roads = [];
-    this.stats = { kills: 0, actions: 0, onBeat: 0, bestIrama: 0, bestChain: 0, time: 0, hitsTaken: 0, cleanNights: 0, lowestOil: 100, tookGaragara: false };
+    this.stats = { kills: 0, actions: 0, onBeat: 0, bestIrama: 0, bestChain: 0, time: 0, hitsTaken: 0, cleanNights: 0, lowestOil: 100, tookGaragara: false, goalsDone: 0 };
+    this.goals = [];
     this.result = null;
     this.draft = null;
   }
@@ -73,6 +75,11 @@ export class Game {
     this.boss = null;
     this.spawnTimer = 1.5;
     this.nightHits = 0;
+    this.nightKills = 0;
+    this.nightBeats = 0;
+    this.nightLowestOil = this.lamp.oil;
+    this.bossBrokenTonight = false;
+    this.goals = makeNightGoals(i, n, this.queue.length);
     this.nightTotal = this.queue.length + (this.bossPending ? 1 : 0);
     this.player.shieldLeft = this.mods.shield;
     this.effects.callout(`NIGHT ${i + 1}`, '#ffe08a', n.title);
@@ -97,6 +104,7 @@ export class Game {
     this.stats.actions += 1;
     if (onBeat) {
       this.stats.onBeat += 1;
+      this.nightBeats += 1;
       this.streak += 1;
       if (p.beatGlow < 0.6) this.effects.floatText(p.x, p.y - 150, 'ON BEAT', '#ffe08a', 20);
       p.beatGlow = 1;
@@ -187,6 +195,7 @@ export class Game {
   killFoe(f, onBeat) {
     f.dead = true;
     this.stats.kills += 1;
+    if (!f.isBoss) this.nightKills += 1;
     this.chain = this.chainTimer > 0 ? this.chain + 1 : 1;
     this.chainTimer = 1.4;
     this.stats.bestChain = Math.max(this.stats.bestChain, this.chain);
@@ -199,6 +208,7 @@ export class Game {
     if (this.chain >= 3) this.effects.callout(`CHAIN x${this.chain}!`, '#ff8a3a');
     if (f.isBoss) {
       this.bossDefeated.push(f.kind);
+      this.bossBrokenTonight = true;
       this.effects.callout(`${f.def.name} FALLS`, '#ffe08a', `+${gained}`);
       this.effects.kick(18);
       this.boss = null;
@@ -238,6 +248,7 @@ export class Game {
   drainLamp(amount) {
     this.lamp.oil = Math.max(0, this.lamp.oil - amount);
     this.stats.lowestOil = Math.min(this.stats.lowestOil, this.lamp.oil);
+    this.nightLowestOil = Math.min(this.nightLowestOil, this.lamp.oil);
     if (!this.lampWarned || this.time - this.lampWarned > 2.5) {
       this.lampWarned = this.time;
       this.effects.floatText(LAMP_X, LAMP_Y - 80, 'THE LAMP DIMS!', '#ff5a46', 20);
@@ -293,6 +304,7 @@ export class Game {
     this.foes = this.foes.filter((f) => !f.dead);
     this.bolts = this.bolts.filter((b) => !b.dead);
     this.effects.update(dt);
+    updateNightGoals(this);
 
     if (this.state === 'play' && !this.queue.length && !this.foes.length && !this.boss && !this.bossPending) {
       this.clearNight();
@@ -301,7 +313,8 @@ export class Game {
 
   clearNight() {
     if (this.nightHits === 0) this.stats.cleanNights += 1;
-    const bonus = Math.round((1000 + this.lamp.oil * 20) * this.diff.scoreMul * (this.nightIndex + 1));
+    const goalBonus = settleNightGoals(this);
+    const bonus = Math.round((1000 + this.lamp.oil * 20) * this.diff.scoreMul * (this.nightIndex + 1)) + goalBonus;
     this.score += bonus;
     if (this.nightIndex >= NIGHTS.length - 1) {
       this.endRun(true, 'The Moon-Eater is driven off and dawn comes');
@@ -316,6 +329,12 @@ export class Game {
       picked: null,
       roadPicked: null,
     };
+  }
+
+  // Boss phases broken tonight: 3 once it falls, else the phase it has been driven to.
+  bossPhasesBroken() {
+    if (this.bossBrokenTonight) return 3;
+    return this.boss ? this.boss.phase : 0;
   }
 
   pickTembang(i) {
